@@ -3,10 +3,8 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  OneToMany,
   UpdateDateColumn,
 } from 'typeorm';
-import { User } from './users.entity';
 
 @Entity()
 export class Country {
@@ -33,6 +31,6 @@ export class Country {
   deletedAt: Date;
 
   //RELATIONS: User (one-to-many)
-  @OneToMany(() => User, (user: User) => user.country)
-  users: User[];
+  /* @OneToMany(() => User, (user: User) => user.country)
+  users: User[]; */
 }

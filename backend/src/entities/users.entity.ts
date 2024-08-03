@@ -4,27 +4,12 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn,
   ManyToMany,
-  ManyToOne,
   OneToMany,
   UpdateDateColumn,
 } from 'typeorm';
-import { Country } from './country.entity';
 import { Message } from './messages.entity';
 import { Chat } from './chats.entity';
-
-/* 
-  MODEL FIELD DEFINITIONS:
-  - id: string
-  - username: string
-  - password: string
-  - phoneNumber: string
-  - profilePicture: string
-  - createdAt: Date
-  - updatedAt: Date
-  - deletedAt: Date
-*/
 
 @Entity()
 export class User {
@@ -58,24 +43,18 @@ export class User {
   phoneNumber: string;
 
   @ApiProperty({
+    example: '+57',
+    description: 'The phone code of the user',
+  })
+  @Column()
+  phoneCode: string;
+
+  @ApiProperty({
     example: 'https://example.com/profile.jpg',
     description: 'The profile picture of the user',
   })
   @Column({ nullable: true })
   profilePicture: string;
-
-  /* @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
-
-  @Column({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: Date;
-
-  @Column({ type: 'datetime', nullable: true })
-  deletedAt: Date; */
 
   @CreateDateColumn()
   createdAt: Date;
@@ -85,13 +64,13 @@ export class User {
   deletedAt: Date;
 
   //RELATIONS: Message (one-to-many), Chat (many-to-many) and Country (many-to-one)
-  @ApiProperty({
+  /*   @ApiProperty({
     example: '1ef8b5e6-0be1-44a6-9277-e352225f27ec',
     description: 'v4 UUID for the country',
   })
   @ManyToOne(() => Country, (country: Country) => country.id)
   @JoinColumn()
-  country: Country;
+  country: Country; */
 
   @OneToMany(() => Message, (message: Message) => message.senderId)
   messages: Message[];
