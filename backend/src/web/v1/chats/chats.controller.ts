@@ -10,11 +10,18 @@ import {
 import { ChatsService } from './chats.service';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('chats')
 @Controller('chats')
 export class ChatsController {
   constructor(private readonly chatsService: ChatsService) {}
 
+  @ApiOperation({ summary: 'Create chat' })
+  @ApiResponse({
+    status: 201,
+    description: 'The chat has been successfully created.',
+  })
   @Post()
   create(@Body() createChatDto: CreateChatDto) {
     return this.chatsService.create(createChatDto);

@@ -27,8 +27,19 @@ export const swaggerConfig = new DocumentBuilder()
   .setTitle('Message App API Reference')
   .setDescription(apiDescription)
   .setVersion('0.1.0')
+  .addTag('auth')
   .addTag('users')
   .addTag('messages')
   .addTag('chats')
-  .addTag('countries')
+  .addBearerAuth(
+    {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      description:
+        'Enter your access token provided by the login function in Users - Just paste the token in the field below.',
+      in: 'header',
+    },
+    'JWT Authentication',
+  )
   .build();

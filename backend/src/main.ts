@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerConfig } from './services/swagger';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const port = process.env.PORT || 3100;
@@ -10,6 +10,9 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document, {});
+
+  // Validates all DTOs
+  app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(port).then(() => {
     Logger.log('---------------------------------------------------------');

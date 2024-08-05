@@ -2,7 +2,12 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import 'dotenv/config';
 import { join } from 'path';
 
-export const config: { database: TypeOrmModuleOptions } = {
+interface JwtOptions {
+  secret: string;
+  expiresIn: string;
+}
+
+export const config: { database: TypeOrmModuleOptions; JWT: JwtOptions } = {
   database: {
     type: 'postgres',
     host: process.env.DB_HOST,
@@ -13,5 +18,9 @@ export const config: { database: TypeOrmModuleOptions } = {
     entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
     synchronize: true,
     retryAttempts: 1,
+  },
+  JWT: {
+    secret: process.env.JWT_SECRET ?? 'secret',
+    expiresIn: process.env.JWT_EXPIRES_IN ?? '1d',
   },
 };

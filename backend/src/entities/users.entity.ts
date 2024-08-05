@@ -24,7 +24,7 @@ export class User {
     example: 'johndoe',
     description: 'The username of the user',
   })
-  @Column({ unique: true })
+  @Column()
   username: string;
 
   @ApiProperty({
@@ -39,7 +39,7 @@ export class User {
     example: '123456789',
     description: 'The phone number of the user',
   })
-  @Column()
+  @Column({ unique: true })
   phoneNumber: string;
 
   @ApiProperty({
