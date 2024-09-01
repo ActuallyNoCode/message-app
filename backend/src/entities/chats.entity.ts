@@ -20,6 +20,27 @@ export class Chat {
   @Column({ primary: true })
   id: string;
 
+  @ApiProperty({
+    example: 'My chat',
+    description: 'Name of the chat',
+  })
+  name: string;
+
+  @ApiProperty({
+    example: '5d5c2a23-b8bc-4522-a292-1a2bf7b3ca81',
+    description: 'v4 UUID for the owner of the chat',
+  })
+  ownerId: string;
+
+  @ApiProperty({
+    example: [
+      '472f08c3-37b7-472d-a54a-c1d8920704d3',
+      'faf9225a-187f-4669-9191-6aada6344b53',
+    ],
+    description: 'List of v4 UUIDs for the admins of the chat',
+  })
+  adminIds: string[];
+
   @CreateDateColumn()
   createdAt: Date;
   @UpdateDateColumn()

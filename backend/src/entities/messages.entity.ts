@@ -61,11 +61,11 @@ export class Message {
   deletedAt: Date;
 
   //RELATIONS: User (many-to-one) and chat (many-to-one)
-  @ManyToOne(() => User, (user: User) => user.messages)
+  @ManyToOne(() => User, (user: User) => user.messages, { cascade: true })
   @JoinColumn()
   senderId: User;
 
-  @ManyToOne(() => Chat, (chat: Chat) => chat.messages)
+  @ManyToOne(() => Chat, (chat: Chat) => chat.messages, { cascade: true })
   @JoinColumn()
   chatId: Chat;
 }

@@ -4,6 +4,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
   OneToMany,
   UpdateDateColumn,
@@ -75,6 +76,7 @@ export class User {
   @OneToMany(() => Message, (message: Message) => message.senderId)
   messages: Message[];
 
-  @ManyToMany(() => Chat, (chat: Chat) => chat.users)
+  @ManyToMany(() => Chat, (chat: Chat) => chat.users, { cascade: true })
+  @JoinTable()
   chats: Chat[];
 }
