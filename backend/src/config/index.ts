@@ -18,6 +18,7 @@ export const config: { database: TypeOrmModuleOptions; JWT: JwtOptions } = {
     entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
     synchronize: true,
     retryAttempts: 1,
+    ssl: true,
   },
   JWT: {
     secret: process.env.JWT_SECRET ?? 'secret',
