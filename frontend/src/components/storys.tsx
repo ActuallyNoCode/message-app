@@ -9,7 +9,6 @@ interface StoryProfile {
   new: boolean;
 }
 
-// Define the storyProfiles array within the component
 const storyProfiles: StoryProfile[] = [
   {
     src: "/profile/23.svg",
@@ -29,9 +28,7 @@ const storyProfiles: StoryProfile[] = [
 
 const Storys: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<StoryProfile | null>(
-    null
-  );
+  const [selectedProfile, setSelectedProfile] = useState<StoryProfile | null>(null);
 
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
@@ -57,24 +54,26 @@ const Storys: React.FC = () => {
   };
 
   return (
-    <div className="bg-blue-600 h-22 flex flex-col rounded-t-lg">
-      <span className="text-white font-semibold">Storys</span>
-      <div className="flex gap-4 overflow-x-auto py-2 px-4">
+    <div className="bg-white rounded-t-lg border shadow-lg">
+      <div className="p-4 border-b">
+        <span className="text-black text-xl font-bold">Storys</span>
+      </div>
+      <div className="flex gap-4 overflow-x-auto py-4 px-6 bg-gray-50 rounded-b-lg">
         {storyProfiles.map((profile, index) => (
           <button
             key={index}
-            className={`h-12 w-12 rounded-full flex flex-col items-center justify-center mr-2 ${
+            className={`h-14 w-14 rounded-full flex items-center justify-center transition-transform duration-200 ${
               profile.new
                 ? "border-4 border-cyan-300"
-                : "border-4 border-gray-500"
-            } border-solid hover:scale-125 cursor-pointer`}
+                : "border-4 border-gray-400"
+            } hover:scale-110 focus:outline-none`}
             onClick={() => openModal(profile)}
           >
             <Image
               src={profile.src}
               alt={profile.alt}
-              width={60}
-              height={50}
+              width={64}
+              height={64}
               className="rounded-full"
             />
           </button>
@@ -82,19 +81,12 @@ const Storys: React.FC = () => {
       </div>
 
       {isModalOpen && selectedProfile && (
-        <Modal isOpen={isModalOpen} onClose={closeModal}>
-          <div className="p-4">
-            <Image
-              src={selectedProfile.src}
-              alt={selectedProfile.alt}
-              width={100}
-              height={100}
-              className="rounded-full"
-            />
-            <h2 className="text-lg font-semibold">{selectedProfile.alt}</h2>
-            <p className="text-gray-500">{selectedProfile.time}</p>
-          </div>
-        </Modal>
+        <Modal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          imageSrc={selectedProfile.src}
+          imageAlt={selectedProfile.alt}
+        />
       )}
     </div>
   );

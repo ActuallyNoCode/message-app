@@ -42,25 +42,25 @@ const contacts: Contact[] = [
 
 export default function ContactList() {
   return (
-    <div className="bg-blue-600 flex flex-col items-start justify-start h-[560px] w-[263px] rounded-lg p-4 overflow-y-auto">
+    <div className="bg-white flex flex-col items-start justify-start h-[560px] w-[263px] rounded-lg p-4 shadow-lg overflow-y-auto">
       <div className="flex flex-col gap-3 w-full">
         {contacts.map((contact) => (
           <div
             key={contact.id}
-            className="bg-white h-16 w-full flex items-center gap-4 p-2 rounded-lg hover:bg-gray-100 cursor-pointer"
+            className="bg-white h-16 w-full flex items-center gap-4 p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors duration-200"
           >
-            <div className="h-12 w-12 rounded-full overflow-hidden">
+            <div className="h-12 w-12 rounded-full overflow-hidden shadow-lg">
               <Image
                 src={contact.profileImage}
-                alt="Profile Picture"
+                alt={contact.name}
                 width={48}
                 height={48}
-                className="h-full w-full"
+                className="object-cover"
               />
             </div>
             <div className="flex flex-col justify-center">
               <span className="text-black font-semibold">{contact.name}</span>
-              <span className="text-gray-400 text-sm">{contact.message}</span>
+              <span className="text-gray-500 text-sm">{contact.message}</span>
             </div>
           </div>
         ))}

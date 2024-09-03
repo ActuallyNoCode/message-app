@@ -9,7 +9,6 @@ interface StoryProfile {
   new: boolean;
 }
 
-// Define the storyProfiles2 array within the component
 const storyProfiles2: StoryProfile[] = [
   {
     src: "/profile/23.svg",
@@ -36,18 +35,15 @@ const storyProfiles2: StoryProfile[] = [
 
 const Multimedia: React.FC = () => {
   const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-  const [mediaProfile, setMediaProfile] = useState<StoryProfile | null>(null);
   const [mediaIndex, setMediaIndex] = useState(0);
 
-  const openMediaModal = (profile: StoryProfile) => {
-    setMediaProfile(profile);
-    setMediaIndex(storyProfiles2.indexOf(profile)); // Set index based on the profile
+  const openMediaModal = (index: number) => {
+    setMediaIndex(index);
     setIsMediaModalOpen(true);
   };
 
   const closeMediaModal = () => {
     setIsMediaModalOpen(false);
-    setMediaProfile(null);
   };
 
   const handleNextMedia = () => {
@@ -61,24 +57,24 @@ const Multimedia: React.FC = () => {
   };
 
   return (
-    <div className="bg-blue-600 h-44 w-full flex flex-wrap justify-center gap-4 p-4 rounded-b-xl">
+    <div className="bg-white border flex flex-wrap justify-center gap-2 p-4 rounded-lg shadow-lg">
       {storyProfiles2.map((profile, index) => (
         <div
           key={index}
-          className="bg-white h-16 w-16 rounded-lg flex items-center justify-center cursor-pointer"
-          onClick={() => openMediaModal(profile)}
+          className="bg-gray-100 h-20 w-20 rounded-lg flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-105"
+          onClick={() => openMediaModal(index)}
         >
           <Image
             src={profile.src}
             alt={profile.alt}
-            width={60}
-            height={60}
+            width={64}
+            height={64}
             className="rounded-lg"
           />
         </div>
       ))}
 
-      {isMediaModalOpen && mediaProfile && (
+      {isMediaModalOpen && (
         <ModalMedia
           isOpen={isMediaModalOpen}
           onClose={closeMediaModal}

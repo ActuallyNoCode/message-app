@@ -4,12 +4,12 @@ import React, { useState } from "react";
 
 export default function LoginView() {
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [email, setEmail] = useState("");
+  const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [Phone, setPhone] = useState("");
+  const [phone, setPhone] = useState(""); // Nota: He cambiado 'Phone' a 'phone' para seguir las convenciones de estilo
 
-  const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(event.target.value);
+  const handleUserNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUserName(event.target.value);
   };
 
   const handlePasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,14 +20,41 @@ export default function LoginView() {
     setPhone(event.target.value);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (mode === "login") {
-      // Handle login logic
-      console.log("Logging in with", email, password);
-    } else {
-      // Handle registration logic
-      console.log("Registering with", email, password, Phone);
+
+    const data =
+      mode === "register"
+        ? {
+            username,
+            password,
+            phoneNumber: phone,
+            phoneCode: "+57",
+          }
+        : {
+            password,
+            phoneNumber: phone,
+          };
+
+    console.log("Submitting data:", data);
+
+    try {
+      const response = await fetch(`http://localhost:3100/auth/${mode}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok && response.status === 201) {
+        // Redirige a la nueva ruta si la respuesta es 201
+        window.location.href = "http://localhost:3001/";
+      } else {
+        throw new Error("Network response was not ok");
+      }
+    } catch (error) {
+      console.error("Error during", mode, ":", error);
     }
   };
 
@@ -80,19 +107,31 @@ export default function LoginView() {
                     type="text"
                     placeholder="Phone"
                     className="w-96 h-12 bg-blue-100 rounded-lg p-2"
-                    value={Phone}
+                    value={phone}
                     onChange={handlePhoneChange}
-                    required={mode === "register"}
+                    required
                   />
                 )}
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="w-96 h-12 bg-blue-100 rounded-lg p-2"
-                  value={email}
-                  onChange={handleEmailChange}
-                  required
-                />
+                {mode === "login" && (
+                  <input
+                    type="text"
+                    placeholder="Phone"
+                    className="w-96 h-12 bg-blue-100 rounded-lg p-2"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    required
+                  />
+                )}
+                {mode === "register" && (
+                  <input
+                    type="text"
+                    placeholder="username"
+                    className="w-96 h-12 bg-blue-100 rounded-lg p-2"
+                    value={username}
+                    onChange={handleUserNameChange}
+                    required
+                  />
+                )}
                 <input
                   type="password"
                   placeholder="Password"
@@ -110,7 +149,7 @@ export default function LoginView() {
                 <div className="flex justify-center gap-10  mt-4 font-semibold">
                   {mode === "login" ? (
                     <span>
-                      Dont have an account?{" "}
+                      Don’t have an account?{" "}
                       <button
                         type="button"
                         onClick={() => setMode("register")}
