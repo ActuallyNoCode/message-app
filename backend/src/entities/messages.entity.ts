@@ -51,7 +51,16 @@ export class Message {
     description: 'The media URL of the message / Provider: Cloudinary',
   })
   @Column()
-  media: string;
+  media: string | null;
+
+  @ApiProperty({
+    example: 'audio/mp3',
+    format:
+      'audio/mp3 | video/mp4 | image/jpeg | image/png | image/gif | application/pdf | application/msword | application/vnd.ms-excel | application/vnd.ms-powerpoint | application/zip | application/x-rar-compressed | application/x-7z-compressed | application/octet-stream',
+    description: 'The media type of the message',
+  })
+  @Column()
+  mediaType: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

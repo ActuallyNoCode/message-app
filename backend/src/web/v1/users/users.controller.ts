@@ -20,7 +20,7 @@ import {
   updateUserDocs,
   usersControllerDocs,
 } from 'src/services/swagger/decorators/users.decorator';
-import { updateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { Request as Req } from 'express';
 import { User } from 'src/entities/users.entity';
 
@@ -61,7 +61,7 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   async updateUser(
     @Param('id') id: string,
-    @Body() data: updateUserDto,
+    @Body() data: UpdateUserDto,
     @Request() req: Req,
   ) {
     if ((req.user as User).id !== id) {
