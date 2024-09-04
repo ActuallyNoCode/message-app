@@ -12,3 +12,11 @@ export class UpdateChatDto extends PartialType(CreateChatDto) {
   })
   ownerId: string;
 }
+
+export interface updateChatResponse {
+  message: string;
+  data: {
+    id: string;
+    name: string;
+  };
+}

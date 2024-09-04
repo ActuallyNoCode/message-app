@@ -32,3 +32,11 @@ export class CreateChatDto {
   @IsNotEmpty()
   name: string;
 }
+
+export interface createChatResponse {
+  message: string;
+  data: {
+    id: string;
+    name: string;
+  };
+}

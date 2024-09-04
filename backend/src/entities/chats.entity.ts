@@ -24,12 +24,14 @@ export class Chat {
     example: 'My chat',
     description: 'Name of the chat',
   })
+  @Column()
   name: string;
 
   @ApiProperty({
     example: '5d5c2a23-b8bc-4522-a292-1a2bf7b3ca81',
     description: 'v4 UUID for the owner of the chat',
   })
+  @Column()
   ownerId: string;
 
   @ApiProperty({
@@ -39,6 +41,7 @@ export class Chat {
     ],
     description: 'List of v4 UUIDs for the admins of the chat',
   })
+  @Column('simple-array')
   adminIds: string[];
 
   @CreateDateColumn()

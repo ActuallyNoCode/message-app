@@ -4,14 +4,13 @@ import {
   BadRequestException,
   ForbiddenException,
 } from '@nestjs/common';
-import { CreateChatDto } from './dto/create-chat.dto';
+import { CreateChatDto, createChatResponse } from './dto/create-chat.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat } from 'src/entities/chats.entity';
 import { Repository } from 'typeorm';
 import { v4 } from 'uuid';
 import { User } from 'src/entities/users.entity';
-import { UpdateChatDto } from './dto/update-chat.dto';
-
+import { UpdateChatDto, updateChatResponse } from './dto/update-chat.dto';
 @Injectable()
 export class ChatsService {
   constructor(
@@ -26,12 +25,29 @@ export class ChatsService {
     }
 
     const chat = await this.chatRepository.findOne({
-      where: { id, users: { id: userId } },
+      where: { id },
       relations: ['users', 'messages'],
+      select: {
+        users: {
+          id: true,
+          username: true,
+          phoneNumber: true,
+          phoneCode: true,
+          profilePicture: true,
+        },
+      },
     });
 
     if (!chat) {
-      throw new NotFoundException(`Chat with ID ${id} not found for user`);
+      throw new NotFoundException(`Chat with ID ${id} not found`);
+    }
+
+    // Check if the user is part of the chat
+    const isUserInChat = chat.users.some((u) => u.id === userId);
+    if (!isUserInChat) {
+      throw new NotFoundException(
+        `User with ID ${userId} is not part of the chat`,
+      );
     }
 
     return chat;
@@ -45,15 +61,20 @@ export class ChatsService {
 
     return await this.chatRepository.find({
       where: { users: { id: userId } },
-      relations: ['users', 'messages'],
     });
   }
 
   async createChat(
     createChatDto: CreateChatDto,
     userId: string,
-  ): Promise<Chat> {
+  ): Promise<createChatResponse> {
     const id = v4();
+
+    // Add userId to the users list
+    createChatDto.users.push(userId);
+
+    // Add userId to the adminIds list
+    createChatDto.adminIds.push(userId);
 
     const users = await this.userRepository.find({
       where: createChatDto.users.map((id) => ({ id })),
@@ -71,14 +92,6 @@ export class ChatsService {
       throw new BadRequestException('Some admins are not in the users list');
     }
 
-    if (!createChatDto.users.includes(userId)) {
-      throw new BadRequestException('Owner must be in the users list');
-    }
-
-    if (!createChatDto.adminIds.includes(userId)) {
-      throw new BadRequestException('Owner must be in the admin list');
-    }
-
     const chat = this.chatRepository.create({
       id,
       users,
@@ -87,14 +100,19 @@ export class ChatsService {
       adminIds: createChatDto.adminIds,
     });
 
-    return await this.chatRepository.save(chat);
+    const savedChat = await this.chatRepository.save(chat);
+
+    return {
+      message: 'Chat created successfully',
+      data: { id: savedChat.id, name: savedChat.name },
+    };
   }
 
   async updateChat(
     id: string,
     chatDto: UpdateChatDto,
     userId: string,
-  ): Promise<Chat> {
+  ): Promise<updateChatResponse> {
     if (chatDto.adminIds && !chatDto.adminIds.includes(userId)) {
       throw new ForbiddenException('User is not an admin');
     }
@@ -141,10 +159,18 @@ export class ChatsService {
       throw new NotFoundException(`Chat with ID ${id} not found`);
     }
 
-    return await this.chatRepository.save(chat);
+    const savedChat = await this.chatRepository.save(chat);
+
+    return {
+      message: 'Chat updated successfully',
+      data: { id: savedChat.id, name: savedChat.name },
+    };
   }
 
-  async deleteChat(id: string, userId: string): Promise<Chat> {
+  async deleteChat(
+    id: string,
+    userId: string,
+  ): Promise<{ message: string; deletedId: string }> {
     const chat = await this.chatRepository.findOne({ where: { id } });
     if (!chat) {
       throw new NotFoundException(`Chat with ID ${id} not found`);
@@ -155,6 +181,6 @@ export class ChatsService {
     }
 
     await this.chatRepository.softDelete({ id });
-    return chat;
+    return { message: 'Chat deleted successfully', deletedId: chat.id };
   }
 }

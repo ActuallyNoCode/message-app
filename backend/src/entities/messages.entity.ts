@@ -50,7 +50,9 @@ export class Message {
     example: 'https://example.com/media.jpg',
     description: 'The media URL of the message / Provider: Cloudinary',
   })
-  @Column()
+  @Column({
+    nullable: true,
+  })
   media: string | null;
 
   @ApiProperty({
@@ -59,7 +61,9 @@ export class Message {
       'audio/mp3 | video/mp4 | image/jpeg | image/png | image/gif | application/pdf | application/msword | application/vnd.ms-excel | application/vnd.ms-powerpoint | application/zip | application/x-rar-compressed | application/x-7z-compressed | application/octet-stream',
     description: 'The media type of the message',
   })
-  @Column()
+  @Column({
+    nullable: true,
+  })
   mediaType: string | null;
 
   @CreateDateColumn()
@@ -71,10 +75,14 @@ export class Message {
 
   //RELATIONS: User (many-to-one) and chat (many-to-one)
   @ManyToOne(() => User, (user: User) => user.messages, { cascade: true })
-  @JoinColumn()
+  @JoinColumn({
+    name: 'senderId',
+  })
   senderId: User;
 
   @ManyToOne(() => Chat, (chat: Chat) => chat.messages, { cascade: true })
-  @JoinColumn()
+  @JoinColumn({
+    name: 'chatId',
+  })
   chatId: Chat;
 }
