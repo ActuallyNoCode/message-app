@@ -1,16 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateChatDto {
-  @ApiProperty({
-    description: 'Owner of the chat Id - has to be in the users list',
-    type: 'string',
-    example: '056eb5b8-d4cd-486b-8a3d-22b3a9304c0e',
-  })
-  @IsNotEmpty()
-  @IsString()
-  ownerId: string;
-
   @ApiProperty({
     description: 'Admins of the chat Ids - has to be in the users list',
     type: 'string',
@@ -40,4 +31,12 @@ export class CreateChatDto {
   })
   @IsNotEmpty()
   name: string;
+}
+
+export interface createChatResponse {
+  message: string;
+  data: {
+    id: string;
+    name: string;
+  };
 }

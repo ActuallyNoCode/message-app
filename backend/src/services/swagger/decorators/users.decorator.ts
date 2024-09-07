@@ -8,7 +8,7 @@ import {
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { updateUserDto } from 'src/web/v1/users/dto/update-user.dto';
+import { UpdateUserDto } from 'src/web/v1/users/dto/update-user.dto';
 
 class UserResponse {
   @ApiProperty({
@@ -214,7 +214,7 @@ export function updateUserDocs() {
       description: 'Update user information by user ID',
     }),
     ApiBody({
-      type: updateUserDto,
+      type: UpdateUserDto,
       description: 'User information to update - every field is optional',
       examples: {
         user: {

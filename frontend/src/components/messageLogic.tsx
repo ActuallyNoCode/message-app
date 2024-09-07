@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { FiMic, FiMicOff } from "react-icons/fi";
 import { BiSend } from "react-icons/bi";
 import { MdOutlinePermMedia } from "react-icons/md";
+import { io } from "socket.io-client";
 
 interface Message {
   message?: string;
@@ -27,6 +28,27 @@ const MessageLogic = () => {
   );
   const [isRecording, setIsRecording] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Connect to the WebSocket server
+  const socketRef = useRef<any>(null);
+  useEffect(() => {
+    socketRef.current = io("ws://localhost:3101", {
+      auth: {
+        authorization: "Bearer " + "my token",
+      },
+    });
+    socketRef.current.on("connection", (data: string) => {
+      console.log(data);
+    });
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
+  const socketSendMessage = (message: string) => {
+    socketRef.current.emit("message", { chatId: "myChatId", message });
+  };
 
   const handleSendMessage = () => {
     if (newMessage.trim() === "" && !selectedImage && !audioUrl) return;
@@ -210,7 +232,10 @@ const MessageLogic = () => {
         </button>
 
         <button
-          onClick={handleSendMessage}
+          onClick={() => {
+            handleSendMessage();
+            socketSendMessage(newMessage);
+          }}
           className="ml-2 bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-600 transition duration-200"
         >
           <BiSend />
