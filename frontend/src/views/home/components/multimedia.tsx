@@ -1,6 +1,8 @@
+"use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
-import ModalMedia from "../components/common/modalMedia";
+import ModalMedia from "../../../components/common/modalMedia";
 
 interface StoryProfile {
   src: string;
@@ -57,22 +59,27 @@ const Multimedia: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border flex flex-wrap justify-center gap-2 p-4 rounded-lg shadow-lg">
-      {storyProfiles2.map((profile, index) => (
-        <div
-          key={index}
-          className="bg-gray-100 h-20 w-20 rounded-lg flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-105"
-          onClick={() => openMediaModal(index)}
-        >
-          <Image
-            src={profile.src}
-            alt={profile.alt}
-            width={64}
-            height={64}
-            className="rounded-lg"
-          />
-        </div>
-      ))}
+    <div className="bg-white border rounded-lg shadow-lg">
+      <div className="p-4 h-14">
+        <span className="text-black text-xl font-bold">Media</span>
+      </div>
+      <div className="flex flex-wrap justify-center gap-2 p-4">
+        {storyProfiles2.map((profile, index) => (
+          <div
+            key={index}
+            className="bg-gray-100 h-20 w-20 rounded-lg flex items-center justify-center cursor-pointer transition-transform duration-200 hover:scale-105"
+            onClick={() => openMediaModal(index)}
+          >
+            <Image
+              src={profile.src}
+              alt={profile.alt}
+              width={64}
+              height={64}
+              className="rounded-lg"
+            />
+          </div>
+        ))}
+      </div>
 
       {isMediaModalOpen && (
         <ModalMedia

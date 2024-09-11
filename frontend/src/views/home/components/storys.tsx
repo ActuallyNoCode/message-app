@@ -1,12 +1,14 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import Modal from "../components/common/modal";
+import Modal from "../../../components/common/modal";
 
 interface StoryProfile {
   src: string;
   alt: string;
   time: string;
-  new: boolean;
+  isNew: boolean;
 }
 
 const storyProfiles: StoryProfile[] = [
@@ -14,33 +16,39 @@ const storyProfiles: StoryProfile[] = [
     src: "/profile/23.svg",
     alt: "Profile Picture 1",
     time: "9:30",
-    new: false,
+    isNew: false,
   },
-  { src: "/profile/24.svg", alt: "Profile Picture 2", time: "9:31", new: true },
-  { src: "/profile/23.svg", alt: "Profile Picture 3", time: "9:32", new: true },
+  {
+    src: "/profile/24.svg",
+    alt: "Profile Picture 2",
+    time: "9:31",
+    isNew: true,
+  },
+  {
+    src: "/profile/23.svg",
+    alt: "Profile Picture 3",
+    time: "9:32",
+    isNew: true,
+  },
   {
     src: "/profile/25.svg",
     alt: "Profile Picture 4",
     time: "9:33",
-    new: false,
+    isNew: false,
   },
 ];
 
 const Storys: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProfile, setSelectedProfile] = useState<StoryProfile | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<StoryProfile | null>(
+    null
+  );
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-
     if (isModalOpen) {
-      timeoutId = setTimeout(() => {
-        setIsModalOpen(false);
-        setSelectedProfile(null);
-      }, 30000);
+      const timer = setTimeout(() => setIsModalOpen(false), 30000);
+      return () => clearTimeout(timer);
     }
-
-    return () => clearTimeout(timeoutId);
   }, [isModalOpen]);
 
   const openModal = (profile: StoryProfile) => {
@@ -54,19 +62,20 @@ const Storys: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-t-lg border shadow-lg">
-      <div className="p-4 border-b">
-        <span className="text-black text-xl font-bold">Storys</span>
+    <div className="bg-white border shadow-lg rounded-t-lg w-full">
+      <div className="p-4 border-b h-14">
+        <span className="text-black text-xl font-bold">Stories</span>
       </div>
       <div className="flex gap-4 overflow-x-auto py-4 px-6 bg-gray-50 rounded-b-lg">
         {storyProfiles.map((profile, index) => (
           <button
             key={index}
-            className={`h-14 w-14 rounded-full flex items-center justify-center transition-transform duration-200 ${
-              profile.new
+            aria-label={`View story of ${profile.alt}`}
+            className={`h-14 w-14 rounded-full flex items-center justify-center transition-transform ${
+              profile.isNew
                 ? "border-4 border-cyan-300"
                 : "border-4 border-gray-400"
-            } hover:scale-110 focus:outline-none`}
+            } hover:scale-110`}
             onClick={() => openModal(profile)}
           >
             <Image

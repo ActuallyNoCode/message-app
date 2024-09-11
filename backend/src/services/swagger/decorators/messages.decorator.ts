@@ -12,7 +12,7 @@ import { updateMessageResponse } from 'src/web/v1/messages/dto/update-message.dt
 import { deleteMessageResponse } from 'src/web/v1/messages/messages.service';
 
 export function messagesControllerDocs() {
-  return applyDecorators(ApiTags('Messages'));
+  return applyDecorators(ApiTags('messages'));
 }
 
 // Get Message By ID

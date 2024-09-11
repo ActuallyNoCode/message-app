@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { FiMic, FiMicOff } from "react-icons/fi";
@@ -32,7 +34,7 @@ const MessageLogic = () => {
   // Connect to the WebSocket server
   const socketRef = useRef<any>(null);
   useEffect(() => {
-    socketRef.current = io("ws://localhost:3101", {
+    socketRef.current = io("ws://localhost:3100", {
       auth: {
         authorization: "Bearer " + "my token",
       },
@@ -151,7 +153,7 @@ const MessageLogic = () => {
   };
 
   return (
-    <div className="bg-white flex flex-col h-[560px] border-2 w-[730px] p-4 rounded-xl">
+    <div className="bg-white flex flex-col h-[calc(100vh-3.5rem)] border-2 w-full p-4 rounded-xl">
       <div className="flex-1 overflow-auto mb-4">
         {messages.map((msg, index) => (
           <div
@@ -163,7 +165,7 @@ const MessageLogic = () => {
             <div
               className={`${
                 msg.sender === "me" ? "bg-blue-200" : "bg-gray-200"
-              } p-2 rounded-lg max-w-[70%]`}
+              } p-2 rounded-lg max-w-[70%] overflow-hidden break-words`}
             >
               {msg.message && (
                 <>
@@ -175,7 +177,7 @@ const MessageLogic = () => {
                 <div className="mt-2">
                   <Image
                     src={msg.imageUrl}
-                    alt="Imagen"
+                    alt="Image"
                     width={200}
                     height={200}
                     className="rounded-lg"
@@ -200,13 +202,23 @@ const MessageLogic = () => {
           </div>
         ))}
       </div>
+
       <div className="flex items-center gap-4">
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSendMessage();
+              socketSendMessage(newMessage);
+            }
+          }}
           placeholder="Escribe un mensaje..."
-          className="flex-1 p-2 border border-gray-300 rounded-lg text-black"
+          className={`flex-1 p-2 border border-gray-300 rounded-lg text-black focus:outline-none focus:border-blue-600 transition duration-200 ${
+            newMessage !== "" ? "focus:ring-2 focus:ring-blue-600" : ""
+          }`}
         />
 
         <label htmlFor="file-input">
