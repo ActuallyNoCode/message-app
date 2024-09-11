@@ -167,10 +167,7 @@ export class ChatsService {
     };
   }
 
-  async deleteChat(
-    id: string,
-    userId: string,
-  ): Promise<{ message: string; deletedId: string }> {
+  async deleteChat(id: string, userId: string): Promise<deleteChatResponse> {
     const chat = await this.chatRepository.findOne({ where: { id } });
     if (!chat) {
       throw new NotFoundException(`Chat with ID ${id} not found`);
@@ -181,6 +178,11 @@ export class ChatsService {
     }
 
     await this.chatRepository.softDelete({ id });
-    return { message: 'Chat deleted successfully', deletedId: chat.id };
+    return { message: 'Chat deleted successfully', data: { deletedId: id } };
   }
+}
+
+export class deleteChatResponse {
+  message: string;
+  data: { deletedId: string };
 }

@@ -15,11 +15,21 @@ import { CreateChatDto } from './dto/create-chat.dto';
 import { Request as Req } from 'express';
 import { User } from 'src/entities/users.entity';
 import { UpdateChatDto } from './dto/update-chat.dto';
+import {
+  chatsControllerDocs,
+  createChatDocs,
+  deleteChatDocs,
+  getChatByIdDocs,
+  getChatsDocs,
+  updateChatDocs,
+} from 'src/services/swagger/decorators/chats.decorator';
 
+@chatsControllerDocs()
 @Controller('chats')
 export class ChatsController {
   constructor(private readonly chatsService: ChatsService) {}
 
+  @getChatByIdDocs()
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
   getChat(@Param('id') id: string, @Request() req: Req) {
@@ -28,6 +38,7 @@ export class ChatsController {
     return this.chatsService.getChatById(id, userId);
   }
 
+  @getChatsDocs()
   @Get()
   @UseGuards(JwtAuthGuard)
   getChats(@Request() req: Req) {
@@ -36,6 +47,7 @@ export class ChatsController {
     return this.chatsService.getChats(userId);
   }
 
+  @createChatDocs()
   @Post()
   @UseGuards(JwtAuthGuard)
   createChat(@Body() createChatDto: CreateChatDto, @Request() req: Req) {
@@ -44,6 +56,7 @@ export class ChatsController {
     return this.chatsService.createChat(createChatDto, userId);
   }
 
+  @updateChatDocs()
   @Patch('/:id')
   @UseGuards(JwtAuthGuard)
   updateChat(
@@ -56,6 +69,7 @@ export class ChatsController {
     return this.chatsService.updateChat(id, updateChatDto, userId);
   }
 
+  @deleteChatDocs()
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   deleteChat(@Param('id') id: string, @Request() req: Req) {

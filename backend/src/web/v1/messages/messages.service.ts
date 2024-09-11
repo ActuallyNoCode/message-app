@@ -1,13 +1,20 @@
 import {
   ForbiddenException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Message } from 'src/entities/messages.entity';
 import { Equal, ILike, Not, Repository } from 'typeorm';
-import { CreateMessageDto } from './dto/create-message.dto';
-import { UpdateMessageDto } from './dto/update-message.dto';
+import {
+  CreateMessageDto,
+  createMessageResponse,
+} from './dto/create-message.dto';
+import {
+  UpdateMessageDto,
+  updateMessageResponse,
+} from './dto/update-message.dto';
 import { v4 } from 'uuid';
 import { MessageStatus } from 'src/constants/types';
 import { User } from 'src/entities/users.entity';
@@ -67,7 +74,7 @@ export class MessagesService {
   async createMessage(
     messageDto: CreateMessageDto,
     userId: string,
-  ): Promise<Message> {
+  ): Promise<createMessageResponse> {
     const id = v4();
     const status = MessageStatus.SENT;
     const { chatId } = messageDto;
@@ -96,14 +103,26 @@ export class MessagesService {
       chatId: chat,
     });
 
-    return await this.messageRepository.save(message);
+    try {
+      await this.messageRepository.save(message);
+    } catch (error) {
+      // Handle the exception here
+      throw new InternalServerErrorException(
+        'An error occurred while saving the message in the database',
+      );
+    }
+
+    return {
+      message: 'Message created successfully',
+      data: { id: message.id, chatId: message.chatId.id },
+    };
   }
 
   async updateMessage(
     id: string,
     message: UpdateMessageDto,
     userId: string,
-  ): Promise<Message> {
+  ): Promise<updateMessageResponse> {
     const user = await this.userRepository.findOne({
       where: { id: userId },
     });
@@ -130,10 +149,19 @@ export class MessagesService {
       throw new NotFoundException('Message not found');
     }
 
-    return updatedMessage;
+    return {
+      message: 'Message updated successfully',
+      data: {
+        id: updatedMessage.id,
+        chatId: updatedMessage.chatId.id,
+      },
+    };
   }
 
-  async deleteMessage(id: string, userId: string): Promise<Message> {
+  async deleteMessage(
+    id: string,
+    userId: string,
+  ): Promise<deleteMessageResponse> {
     // check if the user is the sender of the message
     const user = await this.userRepository.findOne({
       where: { id: userId },
@@ -143,12 +171,21 @@ export class MessagesService {
       where: { id },
     });
 
+    const chat = await this.chatRepository.findOne({
+      where: { id: existingMessage.chatId.id },
+    });
+
     if (!user || !existingMessage) {
       throw new NotFoundException('User or Message not found');
     }
 
-    if (existingMessage.senderId.id !== user.id) {
-      throw new ForbiddenException('User is not the sender of the message');
+    // check if the user is an admin
+    const isAdmin = chat.adminIds.find((admin) => admin === user.id);
+
+    if (existingMessage.senderId.id !== user.id && !isAdmin) {
+      throw new ForbiddenException(
+        'User is not authorized to delete the message',
+      );
     }
 
     await this.messageRepository.softDelete({ id });
@@ -162,6 +199,14 @@ export class MessagesService {
       throw new NotFoundException('Message not found');
     }
 
-    return deletedMessage;
+    return {
+      message: 'Message deleted successfully',
+      data: { id: deletedMessage.id },
+    };
   }
+}
+
+export class deleteMessageResponse {
+  message: string;
+  data: { id: string };
 }

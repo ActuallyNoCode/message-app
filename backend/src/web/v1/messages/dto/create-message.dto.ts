@@ -40,3 +40,11 @@ export class CreateMessageDto {
   @Length(36)
   readonly chatId: string;
 }
+
+export class createMessageResponse {
+  message: string;
+  data: {
+    id: string;
+    chatId: string;
+  };
+}

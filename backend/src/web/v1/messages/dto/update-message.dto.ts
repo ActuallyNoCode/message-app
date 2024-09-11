@@ -32,3 +32,11 @@ export class UpdateMessageDto {
   @IsOptional()
   readonly mediaType: MessageMediaType;
 }
+
+export class updateMessageResponse {
+  message: string;
+  data: {
+    id: string;
+    chatId: string;
+  };
+}

@@ -11,7 +11,6 @@ import {
   Query,
   NotFoundException,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { Request as Req } from 'express';
@@ -20,8 +19,17 @@ import { User } from 'src/entities/users.entity';
 import { UpdateMessageDto } from './dto/update-message.dto';
 import { Message } from 'src/entities/messages.entity';
 import { ChatsService } from '../chats/chats.service';
+import {
+  createMessageDocs,
+  deleteMessageDocs,
+  getMessageByIdDocs,
+  getMessagesByContentDocs,
+  getMessagesByContentInChatDocs,
+  messagesControllerDocs,
+  updateMessageDocs,
+} from 'src/services/swagger/decorators/messages.decorator';
 
-@ApiTags('messages')
+@messagesControllerDocs()
 @Controller('messages')
 export class MessagesController {
   constructor(
@@ -29,16 +37,19 @@ export class MessagesController {
     private readonly chatsService: ChatsService,
   ) {}
 
+  @getMessageByIdDocs()
   @Get('/:id')
   getMessage(@Param('id') id: string) {
     return this.messagesService.getMessage(id);
   }
 
+  @getMessagesByContentDocs()
   @Get('/content/:content')
   getMessageByContent(@Param('content') content: string) {
     return this.messagesService.getMessageByContent(content);
   }
 
+  @getMessagesByContentInChatDocs()
   @Get('/:chatId/messages/search')
   @UseGuards(JwtAuthGuard)
   async getMessagesByContent(
@@ -58,6 +69,7 @@ export class MessagesController {
     return this.messagesService.getMessagesByContentInChat(content, chatId);
   }
 
+  @createMessageDocs()
   @Post()
   @UseGuards(JwtAuthGuard)
   createMessage(@Body() messageDto: CreateMessageDto, @Request() req: Req) {
@@ -66,6 +78,7 @@ export class MessagesController {
     return this.messagesService.createMessage(messageDto, userId);
   }
 
+  @updateMessageDocs()
   @Patch('/:id')
   @UseGuards(JwtAuthGuard)
   updateMessage(
@@ -78,6 +91,7 @@ export class MessagesController {
     return this.messagesService.updateMessage(id, messageDto, userId);
   }
 
+  @deleteMessageDocs()
   @Delete('/:id')
   @UseGuards(JwtAuthGuard)
   deleteMessage(@Param('id') id: string, @Request() req: Req) {

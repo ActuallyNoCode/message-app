@@ -13,7 +13,7 @@ export class UpdateChatDto extends PartialType(CreateChatDto) {
   ownerId: string;
 }
 
-export interface updateChatResponse {
+export class updateChatResponse {
   message: string;
   data: {
     id: string;

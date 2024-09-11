@@ -33,7 +33,7 @@ export class CreateChatDto {
   name: string;
 }
 
-export interface createChatResponse {
+export class createChatResponse {
   message: string;
   data: {
     id: string;
