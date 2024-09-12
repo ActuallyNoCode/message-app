@@ -61,4 +61,19 @@ export class AuthService {
     });
     return token;
   }
+
+  async refreshToken(userId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId, deletedAt: null },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    const newToken = this.jwtService.sign({
+      id: user.id,
+      phoneNumber: user.phoneNumber,
+      phoneCode: user.phoneCode,
+    });
+    return newToken;
+  }
 }

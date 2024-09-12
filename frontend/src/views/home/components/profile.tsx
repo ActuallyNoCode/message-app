@@ -1,7 +1,7 @@
 import React from "react";
 import Image from "next/image";
 
-const ProfileCard: React.FC = () => {
+export default async function ProfileCard() {
   return (
     <div className="bg-white w-full border rounded-lg shadow-lg p-4">
       <h2 className="text-black text-xl font-bold mb-4">Profile</h2>
@@ -25,6 +25,4 @@ const ProfileCard: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default ProfileCard;
+}

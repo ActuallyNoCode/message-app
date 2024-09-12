@@ -4,16 +4,21 @@ import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerConfig } from './services/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const port = process.env.PORT || 3100;
   const app = await NestFactory.create(AppModule);
 
   // Enable CORS for all routes
-  app.enableCors();
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
 
-  // Sockets
+  // Middlewares
   app.useWebSocketAdapter(new IoAdapter(app));
+  app.use(cookieParser());
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('docs', app, document, {});

@@ -66,7 +66,7 @@ export default function ContactList() {
               />
               {/* Status circle */}
               <div
-                className={`absolute bottom-0 right-0 h-4 w-4 ${ContactStatus.Offline} border-2 border-white rounded-full`}
+                className={`absolute bottom-0 right-0 h-4 w-4 ${ContactStatus.Online} border-2 border-white rounded-full`}
               ></div>
             </div>
             <div className="flex flex-col justify-center ml-2">
