@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { Message } from './messages.entity';
 import { Chat } from './chats.entity';
+import { Session } from './sessions.entity';
 
 @Entity()
 export class User {
@@ -64,14 +65,9 @@ export class User {
   @DeleteDateColumn()
   deletedAt: Date;
 
-  //RELATIONS: Message (one-to-many), Chat (many-to-many) and Country (many-to-one)
-  /*   @ApiProperty({
-    example: '1ef8b5e6-0be1-44a6-9277-e352225f27ec',
-    description: 'v4 UUID for the country',
-  })
-  @ManyToOne(() => Country, (country: Country) => country.id)
-  @JoinColumn()
-  country: Country; */
+  //RELATIONS: Message (one-to-many), Chat (many-to-many) and Session (one-to-many)
+  @OneToMany(() => Session, (session: Session) => session.id)
+  sessions: Session[];
 
   @OneToMany(() => Message, (message: Message) => message.senderId)
   messages: Message[];

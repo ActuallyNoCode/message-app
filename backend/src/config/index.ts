@@ -3,8 +3,10 @@ import 'dotenv/config';
 import { join } from 'path';
 
 interface JwtOptions {
-  secret: string;
-  expiresIn: string;
+  sessionSecret: string;
+  sessionExpiresIn?: string;
+  refreshExpiresIn?: string;
+  refreshSecret?: string;
 }
 
 export const config: { database: TypeOrmModuleOptions; JWT: JwtOptions } = {
@@ -21,7 +23,9 @@ export const config: { database: TypeOrmModuleOptions; JWT: JwtOptions } = {
     ssl: true,
   },
   JWT: {
-    secret: process.env.JWT_SECRET ?? 'secret',
-    expiresIn: process.env.JWT_EXPIRES_IN ?? '1d',
+    sessionSecret: process.env.JWT_SECRET,
+    sessionExpiresIn: process.env.JWT_EXPIRES_IN,
+    refreshSecret: process.env.JWT_REFRESH_SECRET,
+    refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN,
   },
 };

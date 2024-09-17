@@ -2,6 +2,7 @@
 
 import axios from "axios";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { useRouter } from "next/navigation";
 import * as Yup from "yup";
 
 interface FormProps {
@@ -17,6 +18,7 @@ interface AuthFormValues {
 }
 
 export function AuthForm({ mode }: FormProps) {
+  const router = useRouter();
   const currentMode = mode === "register" ? "register" : "login";
 
   const initialValues: AuthFormValues = {
@@ -72,7 +74,7 @@ export function AuthForm({ mode }: FormProps) {
       );
 
       if (response.status === 201) {
-        console.log(response.data);
+        router.push("/");
       }
     } catch (error) {
       console.error("Failed to authenticate", error);

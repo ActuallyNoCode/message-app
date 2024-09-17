@@ -5,6 +5,7 @@ import {
   ApiParam,
   ApiSecurity,
   ApiTags,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { Chat } from 'src/entities/chats.entity';
 import { deleteChatResponse } from 'src/web/v1/chats/chats.service';
@@ -34,6 +35,30 @@ export function getChatsDocs() {
     ApiResponse({
       status: 404,
       description: 'User not found',
+    }),
+    ApiQuery({
+      name: 'chatPage',
+      type: 'number',
+      required: false,
+      description: 'Page number for chats default 1',
+    }),
+    ApiQuery({
+      name: 'chatLimit',
+      type: 'number',
+      required: false,
+      description: 'Number of chats per page default 20',
+    }),
+    ApiQuery({
+      name: 'messagePage',
+      type: 'number',
+      required: false,
+      description: 'Page number for messages default 1',
+    }),
+    ApiQuery({
+      name: 'messageLimit',
+      type: 'number',
+      required: false,
+      description: 'Number of messages per page default 1',
     }),
     ApiSecurity('jwt'),
   );

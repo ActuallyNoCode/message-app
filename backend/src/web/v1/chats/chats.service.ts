@@ -53,15 +53,41 @@ export class ChatsService {
     return chat;
   }
 
-  async getChats(userId: string): Promise<Chat[]> {
+  async getChats(
+    userId: string,
+    chatPage: number = 1,
+    chatLimit: number = 10,
+    messagePage: number = 1,
+    messageLimit: number = 1,
+  ): Promise<any> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
-    return await this.chatRepository.find({
+    const skipChats = (chatPage - 1) * chatLimit;
+
+    const chats = await this.chatRepository.find({
       where: { users: { id: userId } },
+      relations: ['messages'],
+      take: chatLimit, // Limit the number of chats
+      skip: skipChats, // Skip chats based on page
     });
+
+    const chatsWithPaginatedMessages = chats.map((chat) => {
+      const skipMessages = (messagePage - 1) * messageLimit;
+      const paginatedMessages = chat.messages.slice(
+        skipMessages,
+        skipMessages + messageLimit,
+      ); // Paginate messages
+
+      return {
+        ...chat,
+        messages: paginatedMessages,
+      };
+    });
+
+    return chatsWithPaginatedMessages;
   }
 
   async createChat(

@@ -44,6 +44,13 @@ export class Chat {
   @Column('simple-array')
   adminIds: string[];
 
+  @ApiProperty({
+    example: ['https://example.com/image.jpg'],
+    description: 'List of profile images for the chat',
+  })
+  @Column('simple-array', { nullable: true })
+  profileImages: string[];
+
   @CreateDateColumn()
   createdAt: Date;
   @UpdateDateColumn()

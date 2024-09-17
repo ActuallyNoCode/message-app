@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -38,13 +39,26 @@ export class ChatsController {
     return this.chatsService.getChatById(id, userId);
   }
 
-  @getChatsDocs()
   @Get()
+  @getChatsDocs()
   @UseGuards(JwtAuthGuard)
-  getChats(@Request() req: Req) {
+  getChats(
+    @Request() req: Req,
+    @Query('chatPage') chatPage: number = 1,
+    @Query('chatLimit') chatLimit: number = 10,
+    @Query('messagePage') messagePage: number = 1,
+    @Query('messageLimit') messageLimit: number = 30,
+  ) {
     const user = req.user as User;
     const userId = user.id;
-    return this.chatsService.getChats(userId);
+
+    return this.chatsService.getChats(
+      userId,
+      chatPage,
+      chatLimit,
+      messagePage,
+      messageLimit,
+    );
   }
 
   @createChatDocs()

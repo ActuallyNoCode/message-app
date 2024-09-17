@@ -3,81 +3,112 @@ import {
   Controller,
   Get,
   Post,
-  Request,
+  Req,
   Res,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { Request as Req, Response } from 'express';
+import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { LocalGuard } from 'src/services/guards/auth.local.guard';
 import {
   AuthControllerDocs,
   LoginDocs,
-  RefreshTokenDocs,
   RegisterDocs,
 } from 'src/services/swagger/decorators/auth.decorator';
+import * as UAParser from 'ua-parser-js';
 import { JwtAuthGuard } from 'src/services/guards/jwt.guard';
-import { User } from 'src/entities/users.entity';
 
 @AuthControllerDocs()
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  private getDeviceInfo(req: Request): string {
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const parser = new UAParser(userAgent);
+    const result = parser.getResult();
+    const deviceInfo = `${result.os.name} - ${result.browser.name} - ${result.device.type ?? 'Desktop'}`;
+    return deviceInfo;
+  }
+
   @Post('register')
   @RegisterDocs()
-  async register(@Body() registerDto: RegisterDto, @Res() res: Response) {
-    const token = this.authService.register(registerDto);
-    if (!token) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+  async register(
+    @Body() registerDto: RegisterDto,
+    @Res() res: Response,
+    @Req() req: Request,
+  ) {
+    const deviceInfo = this.getDeviceInfo(req);
+    const { sessionToken, refreshToken } = await this.authService.register(
+      registerDto,
+      deviceInfo,
+    );
+    if (!sessionToken) throw new UnauthorizedException('Invalid credentials');
 
-    // Set the cookie with the token
-    res.cookie('authToken', token, {
+    // Set the cookies with the token
+    res.cookie('authToken', sessionToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 24 * 7 * 60 * 60 * 1000, // Cookie expiry time (7 days)
+      maxAge: 60 * 15 * 1000, // Cookie expiry time (15 min)
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 24 * 30 * 60 * 60 * 1000, // Cookie expiry time (30 days)
     });
 
     return res.send('Registration successful');
   }
 
   @Post('login')
-  @UseGuards(LocalGuard)
   @LoginDocs()
-  async login(@Body() loginDto: LoginDto, @Res() res: Response) {
-    const token = await this.authService.login(loginDto);
-    if (!token) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res() res: Response,
+    @Req() req: Request,
+  ) {
+    const deviceInfo = this.getDeviceInfo(req);
+    const { refreshToken, sessionToken } = await this.authService.login(
+      loginDto,
+      deviceInfo,
+    );
+    if (!sessionToken) throw new UnauthorizedException('Invalid credentials');
 
     // Set the cookie with the token
-    res.cookie('authToken', token, {
-      maxAge: 24 * 7 * 60 * 60 * 1000, // Cookie expiry time (7 days)
+    res.cookie('authToken', sessionToken, {
+      httpOnly: true,
+      secure: true, // Should be secure in production
+      sameSite: 'none', // Allow cross-site requests
+      maxAge: 60 * 15 * 1000, // Cookie expiry time (15 min)
+    });
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 24 * 30 * 60 * 60 * 1000, // Cookie expiry time (30 days)
     });
 
     return res.send('Login successful');
   }
 
-  @Get('refreshToken')
-  @UseGuards(JwtAuthGuard)
-  @RefreshTokenDocs()
-  async refreshToken(@Request() req: Req, @Res() res: Response) {
-    const user = req.user as User;
-    const token = await this.authService.refreshToken(user.id);
-
-    // Delete the old cookie
+  @Get('logout')
+  async logout(@Res() res: Response) {
     res.clearCookie('authToken');
+    res.clearCookie('refreshToken');
+    return res.send('Logout successful');
+  }
 
-    // Set the cookie with the token
-    res.cookie('authToken', token, {
-      maxAge: 24 * 7 * 60 * 60 * 1000, // Cookie expiry time (7 days)
-    });
-
-    return res.send('Token refreshed');
+  @Get('refresh')
+  @UseGuards(JwtAuthGuard)
+  async refresh(@Req() req: Request) {
+    // extract refreshToken from authorization header
+    const refreshToken = req.headers['authorization']?.split(' ')[1];
+    return await this.authService.refreshTokens(refreshToken);
   }
 }
