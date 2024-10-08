@@ -125,7 +125,6 @@ export class AuthService {
   async refreshTokens(refreshToken: string) {
     try {
       // Validate the refreshToken
-      console.log('Validating refresh token: ', refreshToken);
       const payload = this.refreshJwtService.verify(refreshToken);
 
       // Fetch user from the database using the payload info (like user ID)
@@ -143,8 +142,6 @@ export class AuthService {
         phoneNumber: user.phoneNumber,
         phoneCode: user.phoneCode,
       });
-
-      console.log('Auth Token:', newAuthToken);
 
       // Optionally generate a new refreshToken if you want to rotate it
       const newRefreshToken = this.refreshJwtService.sign({

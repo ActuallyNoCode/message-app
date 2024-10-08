@@ -29,10 +29,6 @@ export default function TokenRefresher({
             withCredentials: true,
           }
         );
-
-        console.log(response);
-
-        console.log("Token refreshed successfully");
       } catch (error) {
         console.error("Error refreshing token", error);
         // Clear the token from cookies

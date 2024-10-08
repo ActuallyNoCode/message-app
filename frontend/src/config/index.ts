@@ -1,4 +1,4 @@
-const settings = {
+export const settings = {
   API_URL: process.env.NEXT_PUBLIC_API_URL,
   COUNTRY_API_KEY: process.env.NEXT_PUBLIC_COUNTRY_API_KEY,
   STREAM_URL: process.env.STREAM_URL,

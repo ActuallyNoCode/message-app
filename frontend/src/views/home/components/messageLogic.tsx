@@ -6,21 +6,15 @@ import { FiMic, FiMicOff } from "react-icons/fi";
 import { BiSend } from "react-icons/bi";
 import { MdOutlinePermMedia } from "react-icons/md";
 import { io } from "socket.io-client";
+import { useSearchParams } from "next/navigation";
+import axios from "axios";
+import settings from "@/config";
+import { Message } from "@/constants";
+import { userStore } from "@/store/user";
+import { useUser } from "@/store/context/userProvider";
 
-interface Message {
-  message?: string;
-  imageUrl?: string;
-  audioUrl?: string;
-  sender: "me" | "other";
-  time: string;
-}
-
-const MessageLogic = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    { message: "hola", sender: "me", time: "9:36" },
-    { message: "¿Cómo estás?", sender: "other", time: "9:37" },
-    { message: "Estoy bien, gracias.", sender: "me", time: "9:38" },
-  ]);
+const MessageLogic = ({ authToken }: { authToken: string | undefined }) => {
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState<string>("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
@@ -31,22 +25,37 @@ const MessageLogic = () => {
   const [isRecording, setIsRecording] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const chatId = useSearchParams().get("chatId");
+  const user = useUser();
   // Connect to the WebSocket server
   const socketRef = useRef<any>(null);
   useEffect(() => {
+    if (!chatId || !authToken) return;
+    // Fetch messages from the server
+    async function fetchMessages() {
+      const { data } = await axios.get(`${settings.API_URL}/chats/${chatId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      console.log(data);
+      setMessages(data.messages);
+    }
+
+    fetchMessages();
+
+    // Connect to the WebSocket server
     socketRef.current = io("ws://localhost:3100", {
       auth: {
         authorization: "Bearer " + "my token",
       },
     });
-    socketRef.current.on("connection", (data: string) => {
-      console.log(data);
-    });
+    socketRef.current.on("connection", (data: string) => {});
 
     return () => {
       socketRef.current.disconnect();
     };
-  }, []);
+  }, [chatId]);
 
   const socketSendMessage = (message: string) => {
     socketRef.current.emit("message", { chatId: "myChatId", message });
@@ -61,20 +70,25 @@ const MessageLogic = () => {
     });
 
     const newMessageObject: Message = {
-      sender: "me",
-      time: currentTime,
+      id: `${messages.length + 1}`,
+      user: {
+        id: user.id,
+        username: user.username,
+        profilePicture: user.profilePicture,
+      },
+      content: newMessage,
+      createdAt: currentTime,
+      status: "sent",
     };
-
-    if (newMessage.trim() !== "") {
-      newMessageObject.message = newMessage;
-    }
 
     if (selectedImage) {
       const imageUrl = URL.createObjectURL(selectedImage);
-      newMessageObject.imageUrl = imageUrl;
+      newMessageObject.media = imageUrl;
+      newMessageObject.mediaType = "image/jpeg";
     }
     if (audioUrl) {
-      newMessageObject.audioUrl = audioUrl;
+      newMessageObject.media = audioUrl;
+      newMessageObject.mediaType = "audio/mp3";
     }
 
     setMessages([...messages, newMessageObject]);
@@ -159,43 +173,43 @@ const MessageLogic = () => {
           <div
             key={index}
             className={`flex ${
-              msg.sender === "me" ? "justify-end" : "justify-start"
+              msg.user.id === user.id ? "justify-end" : "justify-start"
             } mb-4`}
           >
             <div
               className={`${
-                msg.sender === "me" ? "bg-blue-200" : "bg-gray-200"
+                msg.user.id === user.id ? "bg-blue-200" : "bg-gray-200"
               } p-2 rounded-lg max-w-[70%] overflow-hidden break-words`}
             >
-              {msg.message && (
+              {msg.content && (
                 <>
-                  <span className="text-black">{msg.message}</span>
-                  <div className="text-xs text-gray-500">{msg.time}</div>
+                  <span className="text-black">{msg.content}</span>
+                  <div className="text-xs text-gray-500">{msg.createdAt}</div>
                 </>
               )}
-              {msg.imageUrl && (
+              {msg.media && msg.mediaType === "image/jpeg" && (
                 <div className="mt-2">
                   <Image
-                    src={msg.imageUrl}
+                    src={msg.media}
                     alt="Image"
                     width={200}
                     height={200}
                     className="rounded-lg"
                   />
-                  <div className="text-xs text-gray-500">{msg.time}</div>
+                  <div className="text-xs text-gray-500">{msg.createdAt}</div>
                 </div>
               )}
-              {msg.audioUrl && (
+              {msg.media && msg.mediaType === "audio/mp3" && (
                 <div className="mt-2">
                   <audio
                     ref={audioRef}
                     controls
-                    src={msg.audioUrl}
+                    src={msg.media}
                     className="w-56"
                   >
                     Your browser does not support the audio element.
                   </audio>
-                  <div className="text-xs text-gray-500">{msg.time}</div>
+                  <div className="text-xs text-gray-500">{msg.createdAt}</div>
                 </div>
               )}
             </div>

@@ -13,7 +13,6 @@ export async function middleware(req: NextRequest) {
   if (!authToken && refreshToken) {
     // If authToken is missing but refreshToken is present, attempt to refresh the token
     const tokenResponse = await refreshSession(refreshToken.value);
-    console.log("Token response:", tokenResponse);
     if (!tokenResponse) {
       // If the refresh fails, clear the authToken cookie and redirect to login
       const response = NextResponse.redirect(
@@ -30,14 +29,14 @@ export async function middleware(req: NextRequest) {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 60 * 15 * 1000, // 15 minutes
+      maxAge: 60 * 15, // 15 minutes
     });
 
     response.cookies.set("refreshToken", tokenResponse.refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: "none",
-      maxAge: 24 * 30 * 60 * 60 * 1000, // 30 days
+      maxAge: 24 * 30 * 60 * 60, // 30 days
     });
 
     return response;

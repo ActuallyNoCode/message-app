@@ -22,8 +22,6 @@ export async function refreshSession(
       }
     );
 
-    console.log("Refresh response:", response.data);
-
     const { authToken, refreshToken } = response.data;
 
     // Extract the new authToken from the response

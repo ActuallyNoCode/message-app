@@ -11,6 +11,7 @@ interface FormProps {
 
 interface AuthFormValues {
   phoneNumber: string;
+  phoneCode?: string;
   username?: string;
   password: string;
   confirmPassword?: string;
@@ -23,6 +24,7 @@ export function AuthForm({ mode }: FormProps) {
 
   const initialValues: AuthFormValues = {
     phoneNumber: "",
+    phoneCode: "+57",
     username: "",
     password: "",
     confirmPassword: "",
@@ -60,8 +62,8 @@ export function AuthForm({ mode }: FormProps) {
   });
 
   const onSubmit = async (values: AuthFormValues) => {
+    delete values.confirmPassword;
     try {
-      console.log(values);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/auth/${values.mode}`,
         values,
@@ -87,103 +89,110 @@ export function AuthForm({ mode }: FormProps) {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={onSubmit}
+        validateOnMount={true} // Add this to trigger validation on mount
       >
-        {({ handleSubmit }) => (
-          <Form onSubmit={handleSubmit} className="flex flex-col gap-3">
-            <div className="flex flex-col">
-              <Field
-                name="phoneNumber"
-                placeholder="Phone Number"
-                required
-                className="w-96 h-12 bg-blue-100 rounded-lg p-2"
-              />
-              <ErrorMessage
-                name="phoneNumber"
-                component="span"
-                className="text-red-500 text-sm ml-2"
-              />
-            </div>
-
-            {currentMode === "register" && (
+        {({ handleSubmit, values, errors, touched }) => {
+          return (
+            <Form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <div className="flex flex-col">
                 <Field
-                  name="username"
-                  placeholder="Username"
-                  className="w-96 h-12 bg-blue-100 rounded-lg p-2"
-                />
-                <ErrorMessage
-                  name="username"
-                  component="span"
-                  className="text-red-500 text-sm ml-2"
-                />
-              </div>
-            )}
-
-            <div className="flex flex-col">
-              <Field
-                name="password"
-                type="password"
-                placeholder="Password"
-                required
-                className="w-96 h-12 bg-blue-100 rounded-lg p-2"
-              />
-              <ErrorMessage
-                name="password"
-                component="span"
-                className="text-red-500 text-sm ml-2"
-              />
-            </div>
-
-            {currentMode === "register" && (
-              <div className="flex flex-col">
-                <Field
-                  name="confirmPassword"
-                  type="password"
-                  placeholder="Confirm your password"
+                  name="phoneNumber"
+                  placeholder="Phone Number"
                   required
                   className="w-96 h-12 bg-blue-100 rounded-lg p-2"
                 />
                 <ErrorMessage
-                  name="confirmPassword"
+                  name="phoneNumber"
                   component="span"
                   className="text-red-500 text-sm ml-2"
                 />
               </div>
-            )}
-            <Field type="hidden" name="mode" value={currentMode} />
 
-            <button
-              type="submit"
-              className="bg-blue-700 h-12 rounded-xl text-white font-semibold flex justify-center items-center"
-            >
-              {currentMode === "login" ? "Login" : "Register"}
-            </button>
-
-            <div className="flex justify-center gap-10 mt-4 font-semibold">
-              {currentMode === "login" ? (
-                <span>
-                  Don’t have an account?{" "}
-                  <a
-                    href="?mode=register"
-                    className="text-blue-500 underline hover:text-blue-700"
-                  >
-                    Register here
-                  </a>
-                </span>
-              ) : (
-                <span>
-                  Already have an account?{" "}
-                  <a
-                    href="?mode=login"
-                    className="text-blue-500 underline hover:text-blue-700"
-                  >
-                    Login here
-                  </a>
-                </span>
+              {currentMode === "register" && (
+                <div className="flex flex-col">
+                  <Field
+                    name="username"
+                    placeholder="Username"
+                    className="w-96 h-12 bg-blue-100 rounded-lg p-2"
+                  />
+                  <ErrorMessage
+                    name="username"
+                    component="span"
+                    className="text-red-500 text-sm ml-2"
+                  />
+                </div>
               )}
-            </div>
-          </Form>
-        )}
+
+              <div className="flex flex-col">
+                <Field
+                  name="password"
+                  type="password"
+                  placeholder="Password"
+                  required
+                  className="w-96 h-12 bg-blue-100 rounded-lg p-2"
+                />
+                <ErrorMessage
+                  name="password"
+                  component="span"
+                  className="text-red-500 text-sm ml-2"
+                />
+              </div>
+
+              {currentMode === "register" && (
+                <div className="flex flex-col">
+                  <Field
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="Confirm your password"
+                    required
+                    className="w-96 h-12 bg-blue-100 rounded-lg p-2"
+                  />
+                  <ErrorMessage
+                    name="confirmPassword"
+                    component="span"
+                    className="text-red-500 text-sm ml-2"
+                  />
+                </div>
+              )}
+              <Field type="hidden" name="mode" value={currentMode} />
+
+              <button
+                type="submit"
+                className="bg-blue-700 h-12 rounded-xl text-white font-semibold flex justify-center items-center"
+                disabled={
+                  Object.keys(errors).length > 0 || // Disable submit button if there are validation errors
+                  Object.keys(touched).length === 0
+                }
+              >
+                {currentMode === "login" ? "Login" : "Register"}
+              </button>
+
+              <div className="flex justify-center gap-10 mt-4 font-semibold">
+                {currentMode === "login" ? (
+                  <span>
+                    Don’t have an account?{" "}
+                    <a
+                      href="?mode=register"
+                      className="text-blue-500 underline hover:text-blue-700"
+                    >
+                      Register here
+                    </a>
+                  </span>
+                ) : (
+                  <span>
+                    Already have an account?{" "}
+                    <a
+                      href="?mode=login"
+                      className="text-blue-500 underline hover:text-blue-700"
+                    >
+                      Login here
+                    </a>
+                  </span>
+                )}
+              </div>
+            </Form>
+          );
+        }}
       </Formik>
     </div>
   );

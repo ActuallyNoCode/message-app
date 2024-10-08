@@ -22,8 +22,6 @@ export async function POST(request: Request) {
           phoneNumber: phone,
         };
 
-  console.log("Submitting data:", data);
-
   try {
     const response = await axios.post(
       `http://localhost:3100/auth/${mode}`,
@@ -53,7 +51,6 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   // Get the token from the cookie in browser
   const token = request.headers.get("cookie")?.split("=")[1];
-  console.log("Request:", request);
   return Response.json({ request });
 }
 

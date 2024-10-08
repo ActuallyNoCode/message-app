@@ -40,7 +40,6 @@ export class MessagesGateway
 
   @SubscribeMessage('join')
   handleJoin(@MessageBody() ChatId: string, client: Socket): void {
-    console.log(ChatId);
     client.join(ChatId);
   }
 }

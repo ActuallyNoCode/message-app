@@ -42,6 +42,12 @@ export class UsersController {
     return await this.usersService.getUserById(id);
   }
 
+  @Get('/me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Request() req: Req) {
+    return req.user as User;
+  }
+
   @Get('/username/:username')
   @getUserByUsernameDocs()
   @UseGuards(JwtAuthGuard)
@@ -76,7 +82,6 @@ export class UsersController {
   @deleteUserDocs()
   @UseGuards(JwtAuthGuard)
   async softDeleteUser(@Param('id') id: string, @Request() req: Req) {
-    console.log(req.user as User);
     if ((req.user as User).id !== id) {
       throw new UnauthorizedException(
         "You don't have permission to update this user",

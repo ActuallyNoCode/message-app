@@ -26,7 +26,7 @@ export class ChatsService {
 
     const chat = await this.chatRepository.findOne({
       where: { id },
-      relations: ['users', 'messages'],
+      relations: ['users', 'messages', 'messages.senderId'], // Added 'messages.senderId' relation
       select: {
         users: {
           id: true,
@@ -34,6 +34,19 @@ export class ChatsService {
           phoneNumber: true,
           phoneCode: true,
           profilePicture: true,
+        },
+        messages: {
+          id: true,
+          content: true,
+          status: true,
+          media: true,
+          createdAt: true,
+          updatedAt: true,
+          senderId: {
+            id: true,
+            username: true,
+            profilePicture: true, // Add the desired sender fields
+          },
         },
       },
     });
